@@ -3,6 +3,7 @@ languageCode = 'id'
 title = 'Fork My Brain'
 theme = 'archie'
 copyright = '© Mas Eka Setiawan'
+staticDir = ['content/static']
 
 # Code Hightlight
 pygmentsstyle = "monokai"
