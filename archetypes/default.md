@@ -6,3 +6,7 @@ date = {{ .Date }}
 draft = false
 tags =  []
 +++
+
+# Dah.
+
+sampai bertemu di post lain.
