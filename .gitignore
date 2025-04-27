@@ -1,0 +1,14 @@
+# Hugo build output
+/public/
+/resources/_gen/
+
+# Backup files
+*.bak
+*~
+
+# Hugo caches
+/cache/
+
+# Optional: ignore environment files
+.env
+
