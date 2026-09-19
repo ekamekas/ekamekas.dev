@@ -2,8 +2,12 @@
        No per-post `toc = true` needed -- archie required it and no post ever
        set it, so its TOC feature was effectively dead.
        Requires [markup.tableOfContents] startLevel = 1, because posts on this
-       site use `#` as their section heading. */ -}}
-{{- if ge (len .Fragments.Headings) 4 }}
+       site use `#` as their section heading.
+
+       Identifiers counts headings at EVERY level; Headings would only count
+       top-level ones, hiding the TOC on a post with few sections but many
+       subsections. */ -}}
+{{- if ge (len .Fragments.Identifiers) 4 }}
 <details class="toc" open>
   <summary>{{ i18n "tableOfContents" }}</summary>
   {{ .TableOfContents }}
