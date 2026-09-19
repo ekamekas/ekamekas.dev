@@ -12,3 +12,12 @@
 # Optional: ignore environment files
 .env
 
+
+# Hugo build lock — must never be committed
+.hugo_build.lock
+
+# Hugo resource cache
+/resources/
+
+# macOS
+.DS_Store
