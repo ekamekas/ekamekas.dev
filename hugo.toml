@@ -1,47 +1,207 @@
-baseURL = 'https://blog.ekamekas.dev'
-languageCode = 'id'
-title = 'Fork My Brain'
-theme = 'archie'
-copyright = '© Mas Eka Setiawan'
-staticDir = ['content/static']
+# =============================================================================
+# Site identity
+# =============================================================================
+baseURL   = 'https://blog.ekamekas.dev/'
+title     = 'Fork My Brain'
+copyright = 'Mas Eka Setiawan'
+theme     = 'forkmybrain'
 
-# Code Hightlight
-pygmentsstyle = "monokai"
-pygmentscodefences = true
-pygmentscodefencesguesssyntax = true
+# defaultContentLanguage is what actually drives <html lang>. Before this the
+# resolved config was 'en', so an Indonesian blog shipped lang="en" everywhere.
+# languageCode alone does NOT do it.
+defaultContentLanguage = 'id'
 
-# Pagination
-pagination.pagerSize = 10
+# Replaces languageCode, deprecated in Hugo v0.158.0.
+locale = 'id'
 
-# Other Config
+# Match CI's TZ so local and CI agree on the bare TOML dates some posts use.
+timeZone = 'Asia/Jakarta'
+
+enableRobotsTXT = true
+enableEmoji     = true
+
+# content/ is a git submodule: the parent repo's log has no commits for those
+# files, so .GitInfo / :git lastmod would always resolve empty.
+enableGitInfo = false
+
+# content/README.md ships in the content submodule and was publishing as
+# /readme/ with an empty <title>, sitemap included. Glob negation inside a
+# mount's `files` list does not filter it; this regex does.
+ignoreFiles = ['content/README\.md$']
+
+summaryLength = 40
+
+[module.hugoVersion]
+  extended = true
+  min      = '0.158.0'
+
+# =============================================================================
+# Files & mounts
+# =============================================================================
+# Explicit mounts instead of the legacy staticDir list.
+#
+# WHY: `staticDir = ['static', 'content/static']` silently mounted only the
+# first entry -- Hugo dropped content/static, taking the public key and all
+# five post diagrams with it. Declaring mounts is unambiguous.
+#
+# Declaring any [[module.mounts]] replaces the project's default mounts, so the
+# full set is spelled out here.
+[[module.mounts]]
+  source = 'content'
+  target = 'content'
+
+[[module.mounts]]
+  source = 'static'
+  target = 'static'
+
+# Contents land at the site ROOT, so content/static/ekamekas.dev.pub publishes
+# to /ekamekas.dev.pub and the post diagrams keep their /<file>.svg URLs.
+[[module.mounts]]
+  source = 'content/static'
+  target = 'static'
+
+[[module.mounts]]
+  source = 'assets'
+  target = 'assets'
+
+[[module.mounts]]
+  source = 'layouts'
+  target = 'layouts'
+
+[[module.mounts]]
+  source = 'i18n'
+  target = 'i18n'
+
+[[module.mounts]]
+  source = 'data'
+  target = 'data'
+
+[[module.mounts]]
+  source = 'archetypes'
+  target = 'archetypes'
+
+[taxonomies]
+  # 'categories' was on by Hugo default but unused, producing an empty page.
+  tag = 'tags'
+
+[pagination]
+  pagerSize = 10
+
+[frontmatter]
+  date    = ['date', 'publishDate', 'lastmod']
+  lastmod = ['lastmod', 'date']   # deliberately no ':git' -- see enableGitInfo
+
+# Default og:image for every page, with no content edits. There are no cover
+# images anywhere in the content repo.
+[[cascade]]
+  [cascade.params]
+    images = ['/og-default.png']
+  [cascade.target]
+    path = '/**'
+
+# =============================================================================
+# Markup
+# =============================================================================
+[markup]
+  [markup.highlight]
+    # Replaces the legacy pygmentsstyle / pygmentscodefences /
+    # pygmentscodefencesguesssyntax keys. noClasses=false is the point: with
+    # the default (true) Chroma baked monokai into inline style= attributes, so
+    # code blocks could never follow light/dark.
+    noClasses          = false
+    style              = 'github'
+    codeFences         = true
+    guessSyntax        = false   # ~11 unlabelled fences were being mis-lexed
+    lineNos            = false
+    tabWidth           = 4
+    wrapperClass       = 'highlight'
+
+  [markup.tableOfContents]
+    # MANDATORY companion to layouts/_markup/render-heading.html.
+    # .TableOfContents is built from the goldmark AST at the ORIGINAL heading
+    # levels, which render hooks do not touch. Posts use `#` as their section
+    # level, so the default startLevel=2 yielded an EMPTY TOC on 5 of 8 posts.
+    startLevel = 1
+    endLevel   = 3
+    ordered    = false
+
+  [markup.goldmark.renderer]
+    unsafe = false   # verified: no raw HTML in any post
+
+  [markup.goldmark.parser]
+    autoHeadingID = true
+
+  [markup.goldmark.parser.attribute]
+    block = true
+    title = true
+
+  [markup.goldmark.extensions]
+    linkify       = true
+    strikethrough = true
+    table         = true
+    taskList      = true
+    typographer   = true
+
+  [markup.goldmark.extensions.footnote]
+    enable = true
+
+# =============================================================================
+# Related posts -- 8 posts, 8 tags; 'engineer-journal' covers 5 of them.
+# Hugo requires a COMPLETE block here; you cannot partially override defaults.
+# =============================================================================
+[related]
+  threshold    = 60      # default 80 is too strict for a corpus this small
+  includeNewer = true
+  toLower      = true
+
+  [[related.indices]]
+    name   = 'tags'
+    weight = 100
+
+  [[related.indices]]
+    name   = 'date'
+    weight = 10
+
+# =============================================================================
+# Params
+# =============================================================================
+# mathjax / katex REMOVED: no post contains any math notation, and the two of
+# them together were loading ~360 KB of dead JS/CSS on every page view.
 [params]
-mode = 'auto'
-useCDN = false
-subtitle = 'Apa yang ada di kepala, saat ingin menulis, ku tulis di sini. Sekedar software engineering, di tulis dengan 10 jari, vim dan <3.'
-mathjax = true
-katex = true
+  mainSections = ['posts']
+  ogLocale     = 'id_ID'
+  subtitle     = 'Apa yang ada di kepala, saat ingin menulis, ku tulis di sini. Sekedar software engineering, di tulis dengan 10 jari, vim dan <3.'
+  description  = 'Catatan software engineering, cloud, database, dan jurnal belajar. Ditulis dengan 10 jari, vim, dan <3.'
+  images       = ['/og-default.png']
+
+  [params.author]
+    name = 'Eka Setiawan'
+    url  = 'https://github.com/ekamekas/'
 
 [[params.social]]
-name = "GitHub"
-icon = "github"
-url = "https://github.com/ekamekas/"
+  name = 'GitHub'
+  url  = 'https://github.com/ekamekas/'
 
 [[params.social]]
-name = "Twitter"
-icon = "twitter"
-url = "https://twitter.com/ekamekas/"
+  name = 'Twitter'
+  url  = 'https://twitter.com/ekamekas/'
+
+# =============================================================================
+# Menu
+# =============================================================================
+[[menu.main]]
+  name    = 'Post'
+  pageRef = '/posts'
+  weight  = 1
 
 [[menu.main]]
-name = "Post"
-url = "/"
-weight = 1
+  name    = 'Tags'
+  pageRef = '/tags'
+  weight  = 2
 
 [[menu.main]]
-name = "Tags"
-url = "/tags"
-weight = 2
-
-[[menu.main]]
-name = "[Public Key]"
-url = "/static/ekamekas.dev.pub"
-weight = 3
+  # FIXED: was '/static/ekamekas.dev.pub', a 404. staticDir entries publish
+  # their CONTENTS to the site root.
+  name   = '[Public Key]'
+  url    = '/ekamekas.dev.pub'
+  weight = 3
