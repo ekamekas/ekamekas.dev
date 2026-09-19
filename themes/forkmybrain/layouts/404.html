@@ -1,0 +1,11 @@
+{{ define "main" }}
+<article class="not-found">
+  <h1 class="page-title">404 &mdash; {{ i18n "notFoundTitle" }}</h1>
+  <p>{{ i18n "notFoundBody" }}</p>
+  <ul>
+    <li><a href="{{ "/" | relLangURL }}">{{ i18n "backHome" }}</a></li>
+    <li><a href="{{ "/posts/" | relLangURL }}">{{ i18n "allPosts" }}</a></li>
+    <li><a href="{{ "/tags/" | relLangURL }}">{{ i18n "browseTags" }}</a></li>
+  </ul>
+</article>
+{{ end }}

@@ -1,0 +1,14 @@
+{{ define "main" }}
+<h1 class="page-title">{{ i18n "taggedWith" }} &ldquo;{{ .Title }}&rdquo;</h1>
+{{ $paginator := .Paginate .Pages }}
+<ul class="post-list">
+  {{- range $paginator.Pages }}
+  <li class="post-list-item">
+    <h2 class="post-list-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{ partial "post-meta.html" . }}
+    <p class="post-list-desc">{{ with .Description }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
+  </li>
+  {{- end }}
+</ul>
+{{ partial "paginator.html" . }}
+{{ end }}

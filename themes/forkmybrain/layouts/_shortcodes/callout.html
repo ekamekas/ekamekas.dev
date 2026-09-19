@@ -1,0 +1,41 @@
+{{- /*
+  callout -- ported from themes/archie/layouts/shortcodes/callout.html so it
+  survives the theme swap.
+
+  Behaviour fix: archie only honoured `emoji` when type="custom". The single
+  call site in the content repo passes `emoji` with NO `type`, so archie fell
+  through to its default branch and silently dropped the author's emoji.
+  Here `emoji` is honoured for every type.
+
+  Emoji are written as Go \U escapes on purpose: the source stays pure ASCII,
+  so no editor, shell or transfer step can mangle them.
+
+  Params (all optional): type, text, emoji, title, style
+
+  Note: this shortcode deliberately does NOT reference .Inner. Merely
+  mentioning .Inner makes Hugo treat the shortcode as paired and demand a
+  closing tag, which would break the existing self-closing call site.
+*/ -}}
+{{- $type := .Get "type" | default "note" -}}
+{{- $emoji := .Get "emoji" -}}
+{{- $icon := "\U0001F4A1" -}}
+{{- $label := "" -}}
+{{- if eq $type "alert" -}}
+  {{- $icon = "\U0001F6A8" -}}{{- $label = i18n "calloutAlert" -}}
+{{- else if eq $type "tip" -}}
+  {{- $icon = "\U0001F50E" -}}{{- $label = i18n "calloutTip" -}}
+{{- else if eq $type "warning" -}}
+  {{- $icon = "\U000026A0\U0000FE0F" -}}{{- $label = i18n "calloutWarning" -}}
+{{- else if eq $type "custom" -}}
+  {{- $label = .Get "title" -}}
+{{- end -}}
+{{- with $emoji }}{{ $icon = . }}{{ end -}}
+{{- $body := .Get "text" -}}
+<div class="callout callout-{{ $type }}"
+  {{- if eq $type "custom" }}{{ with .Get "style" }} style="{{ . | safeCSS }}"{{ end }}{{ end }}>
+  <span class="callout-icon" aria-hidden="true">{{ $icon }}</span>
+  <div class="callout-body">
+    {{- with $label }}<p class="callout-label"><strong>{{ . }}</strong></p>{{ end }}
+    {{ $body | $.Page.RenderString }}
+  </div>
+</div>

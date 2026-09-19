@@ -1,0 +1,9 @@
+{{ define "main" }}
+<h1 class="page-title">{{ i18n "allTags" }}</h1>
+<ul class="tag-cloud">
+  {{- range .Data.Terms.ByCount }}
+  <li><a class="tag" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}
+    <span class="tag-count">{{ .Count }}</span></a></li>
+  {{- end }}
+</ul>
+{{ end }}

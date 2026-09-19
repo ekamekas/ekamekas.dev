@@ -1,0 +1,7 @@
+{{- with .GetTerms "tags" }}
+<nav class="post-tags" aria-label="{{ i18n "tags" }}">
+  {{- range . }}
+  <a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+  {{- end }}
+</nav>
+{{- end }}

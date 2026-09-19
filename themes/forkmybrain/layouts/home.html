@@ -1,0 +1,17 @@
+{{ define "main" }}
+{{- with site.Params.subtitle }}
+<p class="site-subtitle">{{ . | markdownify }}</p>
+{{- end }}
+{{ $pages := where site.RegularPages "Section" "in" site.Params.mainSections }}
+{{ $paginator := .Paginate $pages }}
+<ul class="post-list">
+  {{- range $paginator.Pages }}
+  <li class="post-list-item">
+    <h2 class="post-list-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{ partial "post-meta.html" . }}
+    <p class="post-list-desc">{{ with .Description }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
+  </li>
+  {{- end }}
+</ul>
+{{ partial "paginator.html" . }}
+{{ end }}

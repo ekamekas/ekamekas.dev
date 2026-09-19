@@ -1,0 +1,21 @@
+{{- /*
+  Demote every content heading by exactly one level.
+
+  WHY: posts on this site use `#` as their top-level SECTION heading (verified:
+  all 8 posts; 5 of them use ONLY `#`). The page's real <h1> is the post title,
+  so without this hook every post shipped 2-7 <h1> elements and no hierarchy.
+
+  This changes the RENDERED HTML only. It does NOT affect .TableOfContents,
+  which goldmark builds from the AST at the ORIGINAL levels -- that is why
+  hugo.toml must also set [markup.tableOfContents] startLevel = 1.
+
+  Once a heading render hook exists Hugo stops adding the automatic id, so the
+  id is emitted explicitly from .Anchor (the same value autoHeadingID produced,
+  which keeps TOC fragment links resolving).
+*/ -}}
+{{- $level := add .Level 1 -}}
+{{- if gt $level 6 }}{{ $level = 6 }}{{ end -}}
+<h{{ $level }} id="{{ .Anchor }}">
+  {{- .Text -}}
+  <a class="heading-anchor" href="#{{ .Anchor }}" aria-label="{{ i18n "linkToSection" }}" tabindex="-1">#</a>
+</h{{ $level }}>

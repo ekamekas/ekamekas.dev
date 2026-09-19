@@ -1,0 +1,11 @@
+<footer class="site-footer wrap">
+  <div class="socials">
+    {{- range site.Params.social }}
+    <a href="{{ .url }}" rel="me noopener" target="_blank" title="{{ .name }}">{{ .name }}</a>
+    {{- end }}
+  </div>
+  <p class="colophon">
+    {{ now.Format "2006" }} {{ with site.Copyright }}{{ . }}{{ end }} &middot;
+    {{ i18n "builtWith" }} <a href="https://gohugo.io" rel="noopener">Hugo</a>
+  </p>
+</footer>

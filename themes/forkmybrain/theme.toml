@@ -1,0 +1,11 @@
+name = "Fork My Brain"
+license = "MIT"
+description = "Tema Hugo untuk tulisan panjang: estetika terminal yang ditenangkan, font sistem, nol unduhan."
+homepage = "https://blog.ekamekas.dev"
+tags = ["blog", "minimal", "dark-mode", "terminal", "reading"]
+features = ["toc", "reading-time", "related-posts", "prev-next", "dark-mode", "code-copy", "json-ld"]
+min_version = "0.158.0"
+
+[author]
+  name = "Mas Eka Setiawan"
+  homepage = "https://github.com/ekamekas/"
