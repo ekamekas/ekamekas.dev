@@ -1,0 +1,16 @@
+<header class="site-header wrap">
+  <div class="site-id">
+    <a class="site-title" href="{{ "/" | relLangURL }}">{{ site.Title }}</a>
+  </div>
+  <nav class="site-nav" aria-label="{{ i18n "mainNav" }}">
+    {{- range site.Menus.main }}
+    {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
+    <a href="{{ with .PageRef }}{{ . | relLangURL }}{{ else }}{{ .URL }}{{ end }}"
+       {{ if $active }}aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{- end }}
+    <button type="button" id="theme-toggle" class="theme-toggle"
+            aria-label="{{ i18n "toggleTheme" }}" title="{{ i18n "toggleTheme" }}">
+      <span class="theme-toggle-icon" aria-hidden="true"></span>
+    </button>
+  </nav>
+</header>

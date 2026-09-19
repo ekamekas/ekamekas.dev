@@ -1,0 +1,11 @@
+{{- /* Auto-TOC: shown when a post has enough headings to be worth scanning.
+       No per-post `toc = true` needed -- archie required it and no post ever
+       set it, so its TOC feature was effectively dead.
+       Requires [markup.tableOfContents] startLevel = 1, because posts on this
+       site use `#` as their section heading. */ -}}
+{{- if ge (len .Fragments.Headings) 4 }}
+<details class="toc" open>
+  <summary>{{ i18n "tableOfContents" }}</summary>
+  {{ .TableOfContents }}
+</details>
+{{- end }}
