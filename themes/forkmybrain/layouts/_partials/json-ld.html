@@ -1,7 +1,22 @@
 {{- /* Hugo's _internal/schema.html only emits <meta itemprop> tags, not JSON-LD. */ -}}
 {{- $img := "" }}{{ with .Params.images }}{{ $img = absURL (index . 0) }}{{ end }}
 {{- $author := dict "@type" "Person" "name" (or site.Params.author.name "Eka Setiawan") "url" (or site.Params.author.url site.Home.Permalink) }}
-{{- if .IsHome }}
+{{- if and .IsHome (eq site.Params.siteType "profile") }}
+<script type="application/ld+json">
+{{ dict
+  "@context" "https://schema.org"
+  "@type" "ProfilePage"
+  "url" site.Home.Permalink
+  "inLanguage" site.Language.Lang
+  "mainEntity" (dict
+    "@type" "Person"
+    "name" site.Title
+    "url" site.Home.Permalink
+    "description" (site.Params.description | plainify)
+    "sameAs" (apply site.Params.social "index" "." "url"))
+  | jsonify (dict "indent" "  ") | safeJS }}
+</script>
+{{- else if .IsHome }}
 <script type="application/ld+json">
 {{ dict
   "@context" "https://schema.org"
@@ -13,7 +28,10 @@
   "author" $author
   | jsonify (dict "indent" "  ") | safeJS }}
 </script>
-{{- else if and .IsPage (eq .Section "posts") }}
+{{- /* Was `eq .Section "posts"`. Writing moved into rubrik sections, so that
+       test went false everywhere and every post silently lost its BlogPosting
+       markup. mainSections is the list that actually tracks the rubrik. */}}
+{{- else if and .IsPage (in site.Params.mainSections .Section) }}
 <script type="application/ld+json">
 {{ dict
   "@context" "https://schema.org"

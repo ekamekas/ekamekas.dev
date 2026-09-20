@@ -2,10 +2,14 @@
 <article class="not-found">
   <h1 class="page-title">404 &mdash; {{ i18n "notFoundTitle" }}</h1>
   <p>{{ i18n "notFoundBody" }}</p>
+  {{- /* Was a hardcoded list pointing at /posts/ and /tags/. /posts/ stopped
+         existing when writing was split into rubrik, so a 404 handed the
+         reader a second 404. The menu already knows which rubrik are real. */}}
   <ul>
     <li><a href="{{ "/" | relLangURL }}">{{ i18n "backHome" }}</a></li>
-    <li><a href="{{ "/posts/" | relLangURL }}">{{ i18n "allPosts" }}</a></li>
-    <li><a href="{{ "/tags/" | relLangURL }}">{{ i18n "browseTags" }}</a></li>
+    {{- range partial "menu-items.html" . }}
+    <li><a href="{{ with .Page }}{{ .RelPermalink }}{{ else }}{{ .URL }}{{ end }}">{{ .Name }}</a></li>
+    {{- end }}
   </ul>
 </article>
 {{ end }}

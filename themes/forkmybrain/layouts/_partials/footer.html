@@ -3,6 +3,17 @@
     {{- range site.Params.social }}
     <a href="{{ .url }}" rel="me noopener" target="_blank" title="{{ .name }}">{{ .name }}</a>
     {{- end }}
+    {{- /* Was a nav item. It is a file, not a destination -- the footer is
+           where a reader looks for one. */}}
+    {{- /* The file is published by the blog. Relative there, absolute from any
+           other site built out of this repo. */}}
+    {{- with site.Params.publicKey }}
+    {{- $href := . }}
+    {{- if not (hasPrefix site.BaseURL site.Params.blogBaseURL) }}
+      {{- $href = printf "%s%s" site.Params.blogBaseURL . }}
+    {{- end }}
+    <a href="{{ $href }}">{{ i18n "publicKey" }}</a>
+    {{- end }}
   </div>
   <p class="colophon">
     {{ now.Format "2006" }} {{ with site.Copyright }}{{ . }}{{ end }} &middot;

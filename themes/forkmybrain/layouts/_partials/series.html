@@ -1,0 +1,26 @@
+{{- /*
+  A series is a run that continues: 'Learn Zig #1' implies a #2. Listing every
+  part on each part is the whole point of having the taxonomy -- a reader who
+  lands on part 2 from search can see there is a part 1 without hunting.
+
+  Ordered by date ASCENDING, not the site-wide newest-first: part 1 comes
+  first in a series, always.
+*/ -}}
+{{- $page := . }}
+{{- range .GetTerms "series" }}
+<nav class="post-series" aria-label="{{ i18n "series" }}">
+  <p class="post-series-label">{{ i18n "partOfSeries" }}
+    <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></p>
+  <ol class="post-series-list">
+    {{- range .Pages.ByDate }}
+    <li>
+      {{- if eq . $page }}
+      <span aria-current="page">{{ .Title }}</span>
+      {{- else }}
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ol>
+</nav>
+{{- end }}

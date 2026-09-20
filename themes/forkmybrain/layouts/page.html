@@ -5,6 +5,7 @@
     {{ partial "post-meta.html" . }}
     {{- with .Description }}<p class="post-description">{{ . }}</p>{{ end }}
   </header>
+  {{ partial "series.html" . }}
   {{ partial "toc.html" . }}
   <div class="prose">
     {{ .Content }}

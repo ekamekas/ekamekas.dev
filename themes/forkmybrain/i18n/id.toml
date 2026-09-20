@@ -23,5 +23,14 @@ calloutAlert = "Perhatian"
 calloutTip = "Tips"
 calloutWarning = "Peringatan"
 
+series = "Seri"
+allSeries = "Semua seri"
+partOfSeries = "Bagian dari seri"
+publicKey = "Public key"
+
+currentlyWorkingOn = "Sedang dikerjakan"
+contact = "Kontak"
+allIn = "Semua tulisan {{ . }}"
+
 [readingTime]
 other = "{{ . }} menit baca"

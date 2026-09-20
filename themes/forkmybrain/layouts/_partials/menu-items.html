@@ -1,0 +1,27 @@
+{{- /*
+  Returns site.Menus.main with dead rubrik removed.
+
+  A rubrik gets its menu entry in config before it has any writing in it, so
+  the link exists from day one and starts working the moment the first post
+  lands. Until then it would point at an empty list page, so it is dropped
+  here instead of being maintained by hand in two places.
+
+  Only `pageRef` entries that resolve to a SECTION are tested. Taxonomy nodes
+  (/tags) have no .RegularPages of their own -- testing them would delete the
+  Tags link -- and plain `url` entries have no page to test at all.
+
+  Returns: a slice of menu entries.
+*/ -}}
+{{- $items := slice }}
+{{- range site.Menus.main }}
+  {{- $keep := true }}
+  {{- with .PageRef }}
+    {{- with site.GetPage . }}
+      {{- if and (eq .Kind "section") (eq (len .RegularPages) 0) }}
+        {{- $keep = false }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if $keep }}{{ $items = $items | append . }}{{ end }}
+{{- end }}
+{{- return $items }}

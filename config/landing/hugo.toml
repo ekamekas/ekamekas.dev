@@ -1,0 +1,116 @@
+# ekamekas.dev — the profile landing page, deployed to Cloudflare Pages.
+# Build: hugo --environment landing
+#
+# This site reuses the blog's content so the landing page can list recent
+# writing, but it must not *publish* any of it — the posts live on
+# blog.ekamekas.dev and duplicating them here would split their SEO weight.
+# Two things keep that from happening:
+#   1. disableKinds drops the section/taxonomy list pages entirely.
+#   2. The cascade below marks every post render = 'link': Hugo loads it into
+#      .Site.RegularPages and still computes a permalink for it (so slug/url
+#      front matter keeps working), but writes no HTML to disk.
+# Those permalinks are relative, and the layout prefixes them with
+# params.blogBaseURL to point at the blog.
+
+baseURL = 'https://ekamekas.dev/'
+title   = 'Mas Eka Setiawan'
+
+# The landing page runs on the blog's theme on purpose: same typography, same
+# palette, same light/dark behaviour, so the two sites read as one hand. It
+# only overrides home.html, 404.html and sitemap.xml, via landing/layouts.
+theme = 'forkmybrain'
+
+enableRobotsTXT = true
+
+disableKinds = ['section', 'taxonomy', 'term', 'RSS']
+
+[params]
+  description     = 'Software engineer. Menulis tentang engineering dan hal-hal di luar itu.'
+  # Switches the theme's JSON-LD from Blog to ProfilePage/Person. This site is
+  # a person, not a publication.
+  siteType        = 'profile'
+  # How many recent posts to show per rubrik on the landing page.
+  postsPerSection = 4
+
+# Rubrik surfaced on the landing page, in order. `section` must match a
+# directory in the content submodule. A rubrik with no posts yet is skipped by
+# the layout rather than printed as an empty promise.
+[[params.topics]]
+  section     = 'engineering'
+  title       = 'Engineering'
+  description = 'Catatan teknis: bahasa pemrograman, database, cloud, dan hal-hal yang bikin penasaran.'
+
+[[params.topics]]
+  section     = 'ulasan'
+  title       = 'Ulasan'
+  description = 'Buku, perkakas, dan kursus yang sempat dipakai cukup lama untuk punya pendapat.'
+
+[[params.topics]]
+  section     = 'catatan'
+  title       = 'Catatan'
+  description = 'Di luar kode. Hal-hal yang sempat dipikirkan dan terasa sayang kalau tidak ditulis.'
+
+[[menu.main]]
+  name   = 'Blog'
+  url    = 'https://blog.ekamekas.dev/'
+  weight = 1
+
+# Same default og:image as the blog, so a shared link looks identical either
+# way. The theme's head.html reads .Params.images.
+[[cascade]]
+  [cascade.params]
+    images = ['/og-default.png']
+  [cascade.target]
+    path = '/**'
+
+# Posts are loaded and given permalinks, but never written to disk.
+[[cascade]]
+  [cascade.build]
+    render = 'link'
+    list   = 'always'
+  [cascade.target]
+    path = '{/engineering/**,/ulasan/**,/catatan/**}'
+
+# =============================================================================
+# Files & mounts
+# =============================================================================
+# Declaring any [[module.mounts]] replaces the project's default mounts, so the
+# full set is spelled out here. The theme brings its own layouts, assets and
+# i18n through its own mounts; these are only the project's.
+[module]
+
+# --- content: the landing page itself, plus the blog's posts (read-only) ---
+[[module.mounts]]
+  source = 'landing/content'
+  target = 'content'
+
+[[module.mounts]]
+  source = 'content/engineering'
+  target = 'content/engineering'
+
+[[module.mounts]]
+  source = 'content/ulasan'
+  target = 'content/ulasan'
+
+[[module.mounts]]
+  source = 'content/catatan'
+  target = 'content/catatan'
+
+# --- layouts: the landing's own overrides; the rest comes from the theme ---
+[[module.mounts]]
+  source = 'landing/layouts'
+  target = 'layouts'
+
+# --- assets: landing-only CSS, layered on the theme's main.css ---
+[[module.mounts]]
+  source = 'landing/assets'
+  target = 'assets'
+
+# --- static: og-default.png is shared with the blog ---
+[[module.mounts]]
+  source = 'static'
+  target = 'static'
+
+[[module.mounts]]
+  source = 'landing/static'
+  target = 'static'

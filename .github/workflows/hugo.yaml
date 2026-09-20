@@ -1,8 +1,14 @@
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
-name: Deploy Hugo site to Pages
+# One source tree, two published sites.
+#
+#   blog.ekamekas.dev  ->  GitHub Pages      (hugo --environment blog)
+#   ekamekas.dev       ->  Cloudflare Pages  (hugo --environment landing)
+#
+# Both are built once, in the same job, so Hugo and the content submodule are
+# only fetched a single time. Deployment is split so a failure on one host
+# cannot take the other site down with it.
+name: Deploy blog and landing
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches:
       - main
@@ -13,28 +19,22 @@ on:
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
-# Default to bash
 defaults:
   run:
     shell: bash
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     env:
@@ -55,33 +55,54 @@ jobs:
         id: pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
-      - name: Build with Hugo
+
+      - name: Build blog
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
-          HUGO_ENVIRONMENT: production
           TZ: Asia/Jakarta
         run: |
           hugo \
+            --environment blog \
+            --destination public \
             --gc \
             --minify \
             --noBuildLock \
             --printPathWarnings \
             --baseURL "${{ steps.pages.outputs.base_url || 'https://blog.ekamekas.dev' }}/"          
-      - name: Upload artifact (deploy)
+
+      - name: Build landing
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          TZ: Asia/Jakarta
+        run: |
+          hugo \
+            --environment landing \
+            --destination public-landing \
+            --gc \
+            --minify \
+            --noBuildLock \
+            --printPathWarnings          
+
+      - name: Upload blog (deploy)
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
-      - name: Upload artifact (pull request preview)
+      - name: Upload blog (pull request preview)
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: site-preview
+          name: blog-preview
           path: ./public
 
-  # Deployment job
-  deploy:
+      - name: Upload landing
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing
+          path: ./public-landing
+
+  deploy-blog:
     # Pull requests build for review only; never deploy from them.
     if: github.event_name != 'pull_request'
     environment:
@@ -93,3 +114,38 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-landing:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download landing
+        uses: actions/download-artifact@v4
+        with:
+          name: landing
+          path: ./public-landing
+
+      # The Cloudflare credentials are not set until the one-time setup in
+      # README.md is done. Until then this step is skipped rather than failing
+      # the run and masking the blog's own result. `secrets` is not available
+      # in a job-level `if`, so the guard has to live on the step.
+      - name: Check for Cloudflare credentials
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLOUDFLARE_API_TOKEN is not set — skipping the ekamekas.dev deploy. See README.md."
+          fi          
+
+      - name: Deploy to Cloudflare Pages
+        if: steps.cf.outputs.configured == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public-landing --project-name=ekamekas-dev --branch=main

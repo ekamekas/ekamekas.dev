@@ -1,39 +1,18 @@
+# blog.ekamekas.dev — deployed to GitHub Pages.
+# Build: hugo --environment blog
+#
+# Shared settings (language, timezone, author, socials) live in
+# config/_default/hugo.toml.
+
 # =============================================================================
 # Site identity
 # =============================================================================
-baseURL   = 'https://blog.ekamekas.dev/'
-title     = 'Fork My Brain'
-copyright = 'Mas Eka Setiawan'
-theme     = 'forkmybrain'
-
-# defaultContentLanguage is what actually drives <html lang>. Before this the
-# resolved config was 'en', so an Indonesian blog shipped lang="en" everywhere.
-# languageCode alone does NOT do it.
-defaultContentLanguage = 'id'
-
-# Replaces languageCode, deprecated in Hugo v0.158.0.
-locale = 'id'
-
-# Match CI's TZ so local and CI agree on the bare TOML dates some posts use.
-timeZone = 'Asia/Jakarta'
+baseURL = 'https://blog.ekamekas.dev/'
+title   = 'Fork My Brain'
+theme   = 'forkmybrain'
 
 enableRobotsTXT = true
-enableEmoji     = true
-
-# content/ is a git submodule: the parent repo's log has no commits for those
-# files, so .GitInfo / :git lastmod would always resolve empty.
-enableGitInfo = false
-
-# content/README.md ships in the content submodule and was publishing as
-# /readme/ with an empty <title>, sitemap included. Glob negation inside a
-# mount's `files` list does not filter it; this regex does.
-ignoreFiles = ['content/README\.md$']
-
-summaryLength = 40
-
-[module.hugoVersion]
-  extended = true
-  min      = '0.158.0'
+summaryLength   = 40
 
 # =============================================================================
 # Files & mounts
@@ -46,9 +25,24 @@ summaryLength = 40
 #
 # Declaring any [[module.mounts]] replaces the project's default mounts, so the
 # full set is spelled out here.
+# Rubrik are mounted one by one rather than mounting content/ wholesale.
+# Mounting the whole directory also swept in content/static -- which is mounted
+# again below as STATIC -- so every diagram and the public key were published
+# twice, at / and at /static/. It swept in content/README.md too.
+# ('files = [..., "!static/**"]' does not help: glob negation is not honoured
+# there. 'excludeFiles' does, but was deprecated in Hugo v0.153.0.)
+# A new rubrik needs a line here, plus params.mainSections and a menu entry.
 [[module.mounts]]
-  source = 'content'
-  target = 'content'
+  source = 'content/engineering'
+  target = 'content/engineering'
+
+[[module.mounts]]
+  source = 'content/ulasan'
+  target = 'content/ulasan'
+
+[[module.mounts]]
+  source = 'content/catatan'
+  target = 'content/catatan'
 
 [[module.mounts]]
   source = 'static'
@@ -80,16 +74,21 @@ summaryLength = 40
   source = 'archetypes'
   target = 'archetypes'
 
+# =============================================================================
+# Taxonomies
+# =============================================================================
 [taxonomies]
   # 'categories' was on by Hugo default but unused, producing an empty page.
   tag = 'tags'
 
+  # A series is a run that continues -- 'Learn Zig #1' implies a #2. It used to
+  # be encoded twice, as a title prefix and as a tag, and neither gave it a
+  # page or an ordering. Rubrik names ('Cloud Engineering', 'Database
+  # Engineering') are NOT series: those are sections now.
+  series = 'series'
+
 [pagination]
   pagerSize = 10
-
-[frontmatter]
-  date    = ['date', 'publishDate', 'lastmod']
-  lastmod = ['lastmod', 'date']   # deliberately no ':git' -- see enableGitInfo
 
 # Default og:image for every page, with no content edits. There are no cover
 # images anywhere in the content repo.
@@ -146,13 +145,19 @@ summaryLength = 40
     enable = true
 
 # =============================================================================
-# Related posts -- 8 posts, 8 tags; 'engineer-journal' covers 5 of them.
+# Related posts -- 8 posts across a handful of subject tags.
 # Hugo requires a COMPLETE block here; you cannot partially override defaults.
 # =============================================================================
 [related]
   threshold    = 60      # default 80 is too strict for a corpus this small
   includeNewer = true
   toLower      = true
+
+  # Ranked above tags: two parts of the same series are related by definition,
+  # which a shared subject tag only suggests.
+  [[related.indices]]
+    name   = 'series'
+    weight = 120
 
   [[related.indices]]
     name   = 'tags'
@@ -168,40 +173,43 @@ summaryLength = 40
 # mathjax / katex REMOVED: no post contains any math notation, and the two of
 # them together were loading ~360 KB of dead JS/CSS on every page view.
 [params]
-  mainSections = ['posts']
-  ogLocale     = 'id_ID'
-  subtitle     = 'Apa yang ada di kepala, saat ingin menulis, ku tulis di sini. Sekedar software engineering, di tulis dengan 10 jari, vim dan <3.'
-  description  = 'Catatan software engineering, cloud, database, dan jurnal belajar. Ditulis dengan 10 jari, vim, dan <3.'
-  images       = ['/og-default.png']
+  # Every rubrik feeds the front page. Without this Hugo guesses a single
+  # section and the rest silently vanish from it.
+  mainSections = ['engineering', 'ulasan', 'catatan']
 
-  [params.author]
-    name = 'Eka Setiawan'
-    url  = 'https://github.com/ekamekas/'
-
-[[params.social]]
-  name = 'GitHub'
-  url  = 'https://github.com/ekamekas/'
-
-[[params.social]]
-  name = 'Twitter'
-  url  = 'https://twitter.com/ekamekas/'
+  # Was 'Sekedar software engineering' -- no longer true now that the blog has
+  # room for ulasan and catatan.
+  subtitle    = 'Apa yang ada di kepala, saat ingin menulis, ku tulis di sini. Sebagian soal kode, sebagiannya lagi di luar itu. Ditulis dengan 10 jari, vim, dan <3.'
+  description = 'Catatan software engineering, ulasan, dan hal-hal di luar kode. Ditulis dengan 10 jari, vim, dan <3.'
+  images      = ['/og-default.png']
 
 # =============================================================================
 # Menu
 # =============================================================================
+# Rubrik entries use pageRef, which lets layouts/_partials/header.html drop the
+# ones whose section has no posts yet. Add a post to content/ulasan/ and the
+# link appears on its own.
 [[menu.main]]
-  name    = 'Post'
-  pageRef = '/posts'
+  name    = 'Engineering'
+  pageRef = '/engineering'
   weight  = 1
+
+[[menu.main]]
+  name    = 'Ulasan'
+  pageRef = '/ulasan'
+  weight  = 2
+
+[[menu.main]]
+  name    = 'Catatan'
+  pageRef = '/catatan'
+  weight  = 3
 
 [[menu.main]]
   name    = 'Tags'
   pageRef = '/tags'
-  weight  = 2
+  weight  = 4
 
 [[menu.main]]
-  # FIXED: was '/static/ekamekas.dev.pub', a 404. staticDir entries publish
-  # their CONTENTS to the site root.
-  name   = '[Public Key]'
-  url    = '/ekamekas.dev.pub'
-  weight = 3
+  name   = 'Profil'
+  url    = 'https://ekamekas.dev/'
+  weight = 5

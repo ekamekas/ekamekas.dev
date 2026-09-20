@@ -1,0 +1,59 @@
+{{ define "main" }}
+{{- $blog := site.Params.blogBaseURL -}}
+
+<section class="intro">
+  {{- with .Params.tagline }}<p class="tagline">{{ . }}</p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+</section>
+
+{{- /* Without a projects section this is the only place that shows work in
+       progress rather than work finished. Kept manual on purpose: three
+       honest lines beat an auto-generated feed of commits. */}}
+{{- with .Params.focus }}
+<section class="panel">
+  <h2>{{ i18n "currentlyWorkingOn" }}</h2>
+  <ul class="focus">
+    {{- range . }}<li>{{ . | markdownify }}</li>{{ end }}
+  </ul>
+</section>
+{{- end }}
+
+{{- /* The posts live on the blog. They are mounted here (render = 'link') only
+       so this list can exist, so every permalink needs the blog's origin in
+       front of it. A rubrik with nothing in it is skipped entirely -- an empty
+       heading promising writing "soon" is worse than no heading. */}}
+{{- $per := site.Params.postsPerSection | default 4 }}
+{{- range site.Params.topics }}
+  {{- $title := .title }}{{ $desc := .description }}{{ $section := .section }}
+  {{- with first $per (where site.RegularPages "Section" $section).ByDate.Reverse }}
+<section class="panel topic">
+  <h2><a href="{{ $blog }}/{{ $section }}/">{{ $title }}</a></h2>
+  {{- with $desc }}<p class="topic-description">{{ . }}</p>{{ end }}
+  <ul class="post-links">
+    {{- range . }}
+    <li>
+      <a href="{{ $blog }}{{ .RelPermalink }}">{{ .Title }}</a>
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_medium" }}</time>
+    </li>
+    {{- end }}
+  </ul>
+  <p class="more"><a href="{{ $blog }}/{{ $section }}/">{{ i18n "allIn" (lower $title) }} &rarr;</a></p>
+</section>
+  {{- end }}
+{{- end }}
+
+<section class="panel">
+  <h2>{{ i18n "contact" }}</h2>
+  <ul class="post-links contact">
+    {{- with .Params.email }}
+    <li><a href="mailto:{{ . }}">{{ . }}</a></li>
+    {{- end }}
+    {{- range site.Params.social }}
+    <li><a href="{{ .url }}" rel="me noopener">{{ .name }}</a></li>
+    {{- end }}
+    {{- with site.Params.publicKey }}
+    <li><a href="{{ $blog }}{{ . }}">{{ i18n "publicKey" }}</a></li>
+    {{- end }}
+  </ul>
+</section>
+{{ end }}
