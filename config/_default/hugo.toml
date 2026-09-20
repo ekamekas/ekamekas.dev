@@ -1,0 +1,54 @@
+# Shared by every site built from this repo.
+# Per-site overrides live in config/blog/ and config/landing/, selected at
+# build time with `hugo --environment blog|landing`.
+
+# defaultContentLanguage is what actually drives <html lang>. Without it the
+# resolved config falls back to 'en', so an Indonesian site ships lang="en"
+# on every page. languageCode alone does NOT do it.
+defaultContentLanguage = 'id'
+
+# Replaces languageCode, deprecated in Hugo v0.158.0.
+locale = 'id'
+
+copyright = '© Mas Eka Setiawan'
+
+# Match CI's TZ so local and CI agree on the bare TOML dates some posts use.
+timeZone = 'Asia/Jakarta'
+
+enableEmoji = true
+
+# content/ is a git submodule: the parent repo's log has no commits for those
+# files, so .GitInfo / :git lastmod would always resolve empty.
+enableGitInfo = false
+
+[module.hugoVersion]
+  extended = true
+  min      = '0.158.0'
+
+[frontmatter]
+  date    = ['date', 'publishDate', 'lastmod']
+  lastmod = ['lastmod', 'date']   # deliberately no ':git' -- see enableGitInfo
+
+[params]
+  # The landing site links out to the blog for every post it lists, so it needs
+  # the blog's absolute URL. Kept here so the two sites can never disagree.
+  blogBaseURL = 'https://blog.ekamekas.dev'
+  ogLocale    = 'id_ID'
+
+  # Linked from both footers. The blog's content/static mount publishes it at
+  # the site root -- '/static/ekamekas.dev.pub' was a 404 for a year.
+  publicKey = '/ekamekas.dev.pub'
+
+  [params.author]
+    name = 'Eka Setiawan'
+    url  = 'https://github.com/ekamekas/'
+
+# Rendered in both sites' footers. Arrays are replaced, not merged, on config
+# override -- so this list must stay here and nowhere else.
+[[params.social]]
+  name = 'GitHub'
+  url  = 'https://github.com/ekamekas/'
+
+[[params.social]]
+  name = 'Twitter'
+  url  = 'https://twitter.com/ekamekas/'

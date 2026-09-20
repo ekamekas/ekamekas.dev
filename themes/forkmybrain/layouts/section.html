@@ -1,5 +1,8 @@
 {{ define "main" }}
 <h1 class="page-title">{{ .Title }}</h1>
+{{- /* _index.md carries the rubrik's promise in `description` and has no body.
+       Rendering only .Content dropped it silently on every rubrik page. */}}
+{{- with .Description }}<p class="section-description">{{ . }}</p>{{ end }}
 {{ .Content }}
 {{ $paginator := .Paginate .Pages }}
 <ul class="post-list">

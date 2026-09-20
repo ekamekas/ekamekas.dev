@@ -1,5 +1,9 @@
 {{ define "main" }}
-<h1 class="page-title">{{ i18n "allTags" }}</h1>
+{{- /* Was hardcoded to "Semua tag", which read as a lie on /series/. */}}
+{{- $heading := .Title }}
+{{- if eq .Data.Plural "tags" }}{{ $heading = i18n "allTags" }}{{ end }}
+{{- if eq .Data.Plural "series" }}{{ $heading = i18n "allSeries" }}{{ end }}
+<h1 class="page-title">{{ $heading }}</h1>
 <ul class="tag-cloud">
   {{- range .Data.Terms.ByCount }}
   <li><a class="tag" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}

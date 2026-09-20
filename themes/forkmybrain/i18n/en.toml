@@ -23,6 +23,15 @@ calloutAlert = "Alert"
 calloutTip = "Tip"
 calloutWarning = "Warning"
 
+series = "Series"
+allSeries = "All series"
+partOfSeries = "Part of the series"
+publicKey = "Public key"
+
+currentlyWorkingOn = "Currently working on"
+contact = "Contact"
+allIn = "All {{ . }} writing"
+
 [readingTime]
 one = "{{ . }} min read"
 other = "{{ . }} min read"

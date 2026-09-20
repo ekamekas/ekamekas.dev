@@ -3,9 +3,11 @@
     <a class="site-title" href="{{ "/" | relLangURL }}">{{ site.Title }}</a>
   </div>
   <nav class="site-nav" aria-label="{{ i18n "mainNav" }}">
-    {{- range site.Menus.main }}
+    {{- range partial "menu-items.html" . }}
     {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
-    <a href="{{ with .PageRef }}{{ . | relLangURL }}{{ else }}{{ .URL }}{{ end }}"
+    {{- /* .Page.RelPermalink, not the raw pageRef: the ref has no trailing
+           slash, so every rubrik link cost the reader a redirect. */}}
+    <a href="{{ with .Page }}{{ .RelPermalink }}{{ else }}{{ .URL }}{{ end }}"
        {{ if $active }}aria-current="page"{{ end }}>{{ .Name }}</a>
     {{- end }}
     <button type="button" id="theme-toggle" class="theme-toggle"

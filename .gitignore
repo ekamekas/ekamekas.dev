@@ -1,23 +1,20 @@
 # Hugo build output
 /public/
-/resources/_gen/
+/public-landing/
+/resources/
+
+# Hugo build lock — must never be committed
+.hugo_build.lock
+
+# Hugo caches
+/cache/
 
 # Backup files
 *.bak
 *~
 
-# Hugo caches
-/cache/
-
 # Optional: ignore environment files
 .env
-
-
-# Hugo build lock — must never be committed
-.hugo_build.lock
-
-# Hugo resource cache
-/resources/
 
 # macOS
 .DS_Store

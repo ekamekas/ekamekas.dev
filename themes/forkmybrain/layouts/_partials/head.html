@@ -48,7 +48,12 @@
 <link rel="alternate" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ site.Title }}">
 {{- end }}
 
-{{- $css := slice (resources.Get "css/main.css") (resources.Get "css/syntax.css") | resources.Concat "css/bundle.css" }}
-{{- if hugo.IsProduction }}{{ $css = $css | minify | fingerprint }}{{ end }}
+{{- /* A site may add assets/css/extra.css to layer on top of the theme without
+       forking it -- the landing page uses this. Bundled, not a second
+       <link>, so it stays one request and one fingerprint. */}}
+{{- $sheets := slice (resources.Get "css/main.css") (resources.Get "css/syntax.css") }}
+{{- with resources.Get "css/extra.css" }}{{ $sheets = $sheets | append . }}{{ end }}
+{{- $css := $sheets | resources.Concat "css/bundle.css" }}
+{{- if (not hugo.IsServer) }}{{ $css = $css | minify | fingerprint }}{{ end }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}"{{ with $css.Data.Integrity }} integrity="{{ . }}"{{ end }}>
 </head>
